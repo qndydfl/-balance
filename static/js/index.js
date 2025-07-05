@@ -313,7 +313,7 @@ function calculateRun1() {
     const output = `
         <div class="card">
             <div class="card-body">
-                <h4 class="card-title text-primary-emphasis fw-bold">Run 1 Calculations</h4>
+                <h4 class="card-title text-primary-emphasis fw-bold">Run 1 계산 결과</h4>
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item">Target Weight (W1): ${calculated_w1.toFixed(2)} grams</li>                    
                     <li class="list-group-item">Total Weight: ${result.totalWeight.toFixed(2)} grams</li>
@@ -363,7 +363,7 @@ function calculateRun2() {
     // R1 벡터 (V1 - V0)
     const dx = x1 - x0;
     const dy = y1 - y0;
-    let R1 = Math.sqrt(dx**2 + dy**2); // R1은 이제 let으로 선언하여 예외 처리 가능
+    let R1 = Math.sqrt(dx**2 + dy**2); 
     let finalX_deg;
     let finalDirection;
 
@@ -400,7 +400,7 @@ function calculateRun2() {
     const output = `    
         <div class="card">
             <div class="card-body">
-                <h4 class="card-title text-primary-emphasis fw-bold">Run 2 Calculations</h4>
+                <h4 class="card-title text-primary-emphasis fw-bold">Run 2 계산 결과</h4>
                 <ul class="list-group list-group-flush fs-6">
                     <li class="list-group-item">Target Weight (W2): ${calculated_w2.toFixed(2)} grams</li>                    
                     <li class="list-group-item">Total Weight: ${result.totalWeight.toFixed(2)}g</li>
