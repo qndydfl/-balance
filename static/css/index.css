@@ -26,19 +26,17 @@ pre {
     word-wrap: break-word;
 }
 
-.nav-pills .nav-link {
+/* .nav-pills .nav-link {
     transition: all 0.3s ease;
     border: 1px solid transparent;
     border-bottom: none;
     background-color: #f8f9fa;
-}
+} */
 
-.nav-pills .nav-link.active {
-    border-color: #dee2e6 #dee2e6 #fff;
-    /* background-color: #fff; */
+/* .nav-pills .nav-link.active {
+    border-color: #dee2e6 #dee2e6 #fff;    
     position: relative;
-    z-index: 2;
-    /* top: 10px; 위로 살짝 올리기 */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 살짝 그림자 효과 */
+    z-index: 2;    
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     font-weight: bold;
-}
+} */
