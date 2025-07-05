@@ -318,8 +318,8 @@ function calculateRun1() {
                     <li class="list-group-item">Target Weight (W1): ${calculated_w1.toFixed(2)} grams</li>                    
                     <li class="list-group-item">Total Weight: ${result.totalWeight.toFixed(2)} grams</li>
                     <li class="list-group-item">Deviation: ${(result.totalWeight - calculated_w1).toFixed(2)} grams</li>                    
-                    <li class="list-group-item text-primary fw-bold fs-5">Center Hole Number: ${holeNumber}</li>                
-                    <h5 class="mt-3 text-danger">Weight Hole_Number Position:</h5>
+                    <li class="list-group-item text-primary fw-bold">Center Hole Number: ${holeNumber}</li>                
+                    <h6 class="mt-3 text-danger">Weight Hole_Number Position:</h6>
                     <h6>${combinationTable}</h6>
                 </ul>
                 
@@ -406,8 +406,8 @@ function calculateRun2() {
                     <li class="list-group-item">Total Weight: ${result.totalWeight.toFixed(2)}g</li>
                     <li class="list-group-item">Deviation: ${(result.totalWeight - calculated_w2).toFixed(2)}g</li>
                     <li class="list-group-item text-success fw-bold">Initial Center Hole Number: ${initialHole}</li>
-                    <li class="list-group-item text-primary fw-bold fs-5">New Center Hole Number: ${newHoleLocation}</li>
-                    <h5 class="mt-3 text-danger">Weight Hole_Number Position:</h5>
+                    <li class="list-group-item text-primary fw-bold">New Center Hole Number: ${newHoleLocation}</li>
+                    <h6 class="mt-3 text-danger">Weight Hole_Number Position:</h6>
                     <h6>${combinationTable}</h6>
                 </ul>                
             </div>
