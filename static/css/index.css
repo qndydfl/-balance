@@ -42,17 +42,3 @@ pre {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 살짝 그림자 효과 */
     font-weight: bold;
 }
-
-.tab-content {
-    transition: all 0.7s ease;
-    border: 1px solid #dee2e6;
-    padding: 20px;
-    background-color: #fff;
-    position: relative;
-    z-index: 1;
-}
-
-.nav-pills .nav-link:hover {
-    background-color: #bdd1e0;
-    border-color: #ccab3e;
-}
