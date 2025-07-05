@@ -45,16 +45,8 @@
             aria-labelledby="resultModalLabel"
             aria-hidden="true"
         >
-            <div class="modal-dialog modal-dialog-centered modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button
-                            type="button"
-                            class="btn-close"
-                            data-bs-dismiss="modal"
-                            aria-label="Close"
-                        ></button>
-                    </div>
+            <div class="modal-dialog modal-dialog-centered modal-md">
+                <div class="modal-content">                    
                     <div class="modal-body" id="modalResultContent"></div>
                     <div class="modal-footer">
                         <button
@@ -69,17 +61,17 @@
             </div>
         </div>
 
-        <div class="container my-5">
-            <h1 class="text-center mb-4">Fan Trim Balance Calculator</h1>
-            <p class="text-secondary text-center fs-3 mb-5">
+        <div class="container my-5 rounded shadow">
+            <h1 class="text-center mb-4 p-3">Fan Trim Balance Calculator</h1>
+            <p class="text-secondary text-center fs-4 mb-5">
                 B747 CF6-80 Series Engine
             </p>
-            <ul class="nav nav-tabs" id="myTab" role="tablist">
-                <li class="nav-item" role="presentation">
+            <ul class="nav nav-pills " id="myTab" role="tablist">
+                <li class="nav-item border rounded" role="presentation">
                     <button
                         class="nav-link active"
                         id="run1-tab"
-                        data-bs-toggle="tab"
+                        data-bs-toggle="pill"
                         data-bs-target="#run1"
                         type="button"
                         role="tab"
@@ -89,11 +81,11 @@
                         Run 1
                     </button>
                 </li>
-                <li class="nav-item" role="presentation">
+                <li class="nav-item border rounded" role="presentation">
                     <button
                         class="nav-link"
                         id="run2-tab"
-                        data-bs-toggle="tab"
+                        data-bs-toggle="pill"
                         data-bs-target="#run2"
                         type="button"
                         role="tab"
@@ -107,7 +99,7 @@
 
             <div class="tab-content" id="myTabContent">
                 <div
-                    class="tab-pane fade show active p-3"
+                    class="tab-pane show active p-3"
                     id="run1"
                     role="tabpanel"
                     aria-labelledby="run1-tab"
@@ -169,32 +161,19 @@
                     role="tabpanel"
                     aria-labelledby="run2-tab"
                 >
-                    <h4 class="mb-3">Second Fan Rotor Balance (Run 2)</h4>
+                    <h4 class="mb-3">Second Fan Rotor Balance (Run 2)</h4>                    
                     <div class="row g-3">
                         <div class="col-md-4">
-                            <label for="run2_u0_pre" class="form-label"
-                                >Run 1 Recorded U0 (units)</label
+                            <label for="run2_n1_pre" class="form-label"
+                                >N1 (%):</label
                             >
                             <input
-                                type="number"
+                                type="text"
                                 class="form-control"
-                                id="run2_u0_pre"
+                                id="run2_n1_pre"
                                 readonly
                             />
                         </div>
-                        <div class="col-md-4">
-                            <label for="run2_a0_pre" class="form-label"
-                                >Run 1 Recorded A0 (°)</label
-                            >
-                            <input
-                                type="number"
-                                class="form-control"
-                                id="run2_a0_pre"
-                                readonly
-                            />
-                        </div>
-                    </div>
-                    <div class="row g-3 mt-3">
                         <div class="col-md-4">
                             <label for="run2_u1" class="form-label"
                                 >Amplitude (U1) (units)</label
@@ -220,7 +199,7 @@
                                 min="0"
                                 max="359"
                             />
-                        </div>
+                        </div>                        
                     </div>
                     <div class="d-grid gap-2">
                         <button
@@ -230,11 +209,12 @@
                             Calculate Run 2
                         </button>
                     </div>
-                    <div class="mt-4" id="run2_results">
+                    <div id="run2_results">
                         <pre id="run2_output"></pre>
                     </div>
                 </div>
             </div>
+            <br>
         </div>
     </body>
 </html>

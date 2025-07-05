@@ -2,9 +2,11 @@
 let run1_calculated_w1 = 0;
 let run1_recorded_u0 = 0;
 let run1_recorded_a0 = 0;
+let run1_recorded_n1 = 0;
 
 // 주어진 무게 종류 (g) - 무게순으로 정렬 (내림차순)
 const AVAILABLE_WEIGHTS = [17.31, 14.71, 12, 9.16, 6.24, 3.14];
+const WEIGHT_LABELS = ['P06', 'P05', 'P04', 'P03', 'P02', 'P01']; // 무게에 대응하는 레이블
 const MAX_WEIGHT_COUNT = 7;
 const ALLOWED_DEVIATION = 2; // +- 2g 이내 편차
 
@@ -41,7 +43,7 @@ function getInitialHoleNumber(a0, n1_percent) {
     } else if (a0 >= 67 && a0 < 76) { // 67-75
         if (n1_percent === 95) return 18;
         if (n1_percent === 99) return 19;
-    } else if (a0 >= 76 && a0 < 86) { // 76-85 (A0=80 포함)
+    } else if (a0 >= 76 && a0 < 86) { // 76-85
         if (n1_percent === 95) return 17;
         if (n1_percent === 99) return 18;
     } else if (a0 >= 86 && a0 < 95) { // 86-94
@@ -59,7 +61,7 @@ function getInitialHoleNumber(a0, n1_percent) {
     } else if (a0 >= 124 && a0 < 133) { // 124-132
         if (n1_percent === 95) return 12;
         if (n1_percent === 99) return 13;
-    } else if (a0 >= 133 && a0 < 143) { // 133-142 (이전 143 중복 수정)
+    } else if (a0 >= 133 && a0 < 143) { // 133-142
         if (n1_percent === 95) return 11;
         if (n1_percent === 99) return 12;
     } else if (a0 >= 143 && a0 < 152) { // 143-151
@@ -273,7 +275,8 @@ function findApproximateWeightCombination(targetWeight) {
 }
 
 
-function calculateRun1() {
+function calculateRun1() {    
+    
     const n1 = parseFloat(document.getElementById('run1_n1').value);
     const a0 = parseFloat(document.getElementById('run1_a0').value);
     const u0 = parseFloat(document.getElementById('run1_u0').value);
@@ -289,16 +292,21 @@ function calculateRun1() {
     run1_calculated_w1 = calculated_w1;
     run1_recorded_u0 = u0;
     run1_recorded_a0 = a0;
-
+    run1_recorded_n1 = n1;
+    
+    // Run 1 결과를 미리 채워넣기 (Run 2에서 사용)
     // document.getElementById('run2_w1_pre').value = calculated_w1.toFixed(2);
-    document.getElementById('run2_u0_pre').value = u0.toFixed(2);
-    document.getElementById('run2_a0_pre').value = a0.toFixed(2);
+    // document.getElementById('run2_u0_pre').value = u0.toFixed(2);
+    // document.getElementById('run2_a0_pre').value = a0.toFixed(2);
+    document.getElementById('run2_n1_pre').value = n1 + '%';
 
     const holeList = generateHoleNumberList(holeNumber, result.combination.length);
 
-    let combinationTable = '<table class="table table-bordered mt-2"><thead><tr><th>Hole</th><th>Weight(g)</th></tr></thead><tbody>';
+    let combinationTable = '<table class="table table-bordered mt-2"><thead><tr><th>Hole</th><th>Weight(g)</th><th>Type</th></tr></thead><tbody>';
     result.combination.forEach((w, i) => {
-        combinationTable += `<tr><td>${holeList[i]}</td><td>${w.toFixed(2)}</td></tr>`;
+        const labelIndex = AVAILABLE_WEIGHTS.findIndex(v => v === w);
+        const label = labelIndex !== -1 ? WEIGHT_LABELS[labelIndex] : '-';
+        combinationTable += `<tr><td>${holeList[i]}</td><td>${w.toFixed(2)}</td><td>${label}</td></tr>`;
     });
     combinationTable += '</tbody></table>';
 
@@ -381,9 +389,11 @@ function calculateRun2() {
     const result = findApproximateWeightCombination(calculated_w2);
     const holeList = generateHoleNumberList(newHoleLocation, result.combination.length);
 
-    let combinationTable = '<table class="table table-bordered mt-2"><thead><tr><th>Hole</th><th>Weight (g)</th></tr></thead><tbody>';
+    let combinationTable = '<table class="table table-bordered mt-2"><thead><tr><th>Hole</th><th>Weight(g)</th><th>Type</th></tr></thead><tbody>';
     result.combination.forEach((w, i) => {
-        combinationTable += `<tr><td>${holeList[i]}</td><td>${w.toFixed(2)}</td></tr>`;
+        const labelIndex = AVAILABLE_WEIGHTS.findIndex(v => v === w);
+        const label = labelIndex !== -1 ? WEIGHT_LABELS[labelIndex] : '-';
+        combinationTable += `<tr><td>${holeList[i]}</td><td>${w.toFixed(2)}</td><td>${label}</td></tr>`;
     });
     combinationTable += '</tbody></table>';
 
@@ -421,9 +431,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const run2TabButton = document.getElementById('run2-tab');
     run2TabButton.addEventListener('shown.bs.tab', function () {
         if (run1_calculated_w1 !== 0) {
-            document.getElementById('run2_w1_pre').value = run1_calculated_w1.toFixed(2);
-            document.getElementById('run2_u0_pre').value = run1_recorded_u0.toFixed(2);
-            document.getElementById('run2_a0_pre').value = run1_recorded_a0.toFixed(2);
+            // document.getElementById('run2_w1_pre').value = run1_calculated_w1.toFixed(2);
+            // document.getElementById('run2_u0_pre').value = run1_recorded_u0.toFixed(2);
+            // document.getElementById('run2_a0_pre').value = run1_recorded_a0.toFixed(2);
+            document.getElementById('run2_n1_pre').value = run1_recorded_n1 + '%';
         }
     });
 });
