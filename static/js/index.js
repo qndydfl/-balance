@@ -193,7 +193,7 @@ function calculateRun1() {
                         <strong>Total Weight Count :
                         </strong> ${result.combination.length}</li>
                     <li class="list-group-item text-primary fw-bold">
-                        <strong>Center Hole Number :
+                        <strong>Hole Number :
                         </strong> ${holeNumber}</li>                   
                     <h6 class="mt-3 text-danger">
                         <strong>Weight Hole_Number Position :
@@ -327,7 +327,7 @@ function calculateRun2() {
                         <strong>Total Weight Count :
                         </strong> ${approximateWeightResult.combination.length}</li>                    
                     <li class="list-group-item text-primary fw-bold">
-                        New Center Hole Number : ${initialHole} --> ${newHoleLocation}</li>
+                        Hole Number : ${initialHole} --> ${newHoleLocation}</li>
                     <h6 class="mt-3 text-danger">
                         <strong>Weight Hole_Number Position :</strong></h6>
                     <h6>${combinationTable}</h6>
