@@ -189,7 +189,7 @@ function calculateRun1() {
                         </strong> ${result.totalWeight.toFixed(2)} grams</li>
                     <li class="list-group-item">
                         <strong>Deviation :
-                        </strong> ${(result.totalWeight - calculated_w1).toFixed(2)} grams || 
+                        </strong> ${(result.totalWeight - calculated_w1).toFixed(2)} grams || <br>
                         <strong>Total Weight Count :
                         </strong> ${result.combination.length}</li>
                     <li class="list-group-item text-primary fw-bold">
@@ -323,7 +323,7 @@ function calculateRun2() {
                         </strong> ${approximateWeightResult.totalWeight.toFixed(2)} grams</li>
                     <li class="list-group-item">
                         <strong>Deviation :
-                        </strong> ${(approximateWeightResult.totalWeight - calculated_w2).toFixed(2)} grams</strong> || 
+                        </strong> ${(approximateWeightResult.totalWeight - calculated_w2).toFixed(2)} grams</strong> || <br>
                         <strong>Total Weight Count :
                         </strong> ${approximateWeightResult.combination.length}</li>                    
                     <li class="list-group-item text-primary fw-bold">
