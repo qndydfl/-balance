@@ -166,8 +166,10 @@ function calculateRun1() {
     // document.getElementById('run2_a0_pre').value = a0.toFixed(2);
 
     const { holes: holeList, centerIndex: run1CenterIndex } = generateHoleNumberList(holeNumber, result.combination.length);
-    let combinationTable = '<table class="table table-bordered mt-2"><thead><tr><th>Hole</th><th>Weight(g)</th><th>Type</th></tr></thead><tbody>';
-    result.combination.forEach((w, i) => {
+    let combinationTable = 
+        '<table class="table table-success table-striped-colums mt-2"><thead><tr><th>Hole</th><th>Weight(g)</th><th>Type</th></tr></thead><tbody>';
+    
+        result.combination.forEach((w, i) => {
         const labelIndex = AVAILABLE_WEIGHTS.findIndex(v => v === w);
         const label = labelIndex !== -1 ? WEIGHT_LABELS[labelIndex] : '-';
         // centerHole에 bg-info 및 fw-bold 입히기
@@ -179,26 +181,14 @@ function calculateRun1() {
     const output = `
         <div class="card">
             <div class="card-body">
-                <h4 class="card-title text-primary-emphasis fw-bold">Run 1 계산 결과</h4>
+                <h5 class="card-title text-primary-emphasis fw-bold">Run 1 계산 결과</h5>
                 <ul class="list-group list-group-flush">
-                    <li class="list-group-item">
-                        <strong>Target Weight (W1) :
-                        </strong> ${calculated_w1.toFixed(2)} grams</li>
-                    <li class="list-group-item">
-                        <strong>Total Weight :
-                        </strong> ${result.totalWeight.toFixed(2)} grams</li>
-                    <li class="list-group-item">
-                        <strong>Deviation :
-                        </strong> ${(result.totalWeight - calculated_w1).toFixed(2)} grams || <br>
-                        <strong>Total Weight Count :
-                        </strong> ${result.combination.length}</li>
-                    <li class="list-group-item text-primary fw-bold">
-                        <strong>Hole Number :
-                        </strong> ${holeNumber}</li>                   
-                    <h6 class="mt-3 text-danger">
-                        <strong>Weight Hole_Number Position :
-                        </strong></h6>
-                    <h6>${combinationTable}</h6>
+                    <li class="list-group-item">Target Weight (W1) : ${calculated_w1.toFixed(2)} grams</li>
+                    <li class="list-group-item">Total Weight : ${result.totalWeight.toFixed(2)} grams</li>
+                    <li class="list-group-item">Deviation : ${(result.totalWeight - calculated_w1).toFixed(2)} grams</li>
+                    <li class="list-group-item text-danger fw-bold">Hole Number : ${holeNumber}</li>
+                    <li class="list-group-item list-unstyled">${combinationTable}</li>
+                    <li class="list-group-item pb-0">Total Weight Count : ${result.combination.length}</li>
                 </ul>
             </div>
         </div>
@@ -300,8 +290,10 @@ function calculateRun2() {
     const approximateWeightResult = findApproximateWeightCombination(calculated_w2, n1); // n1 값 전달
 
     const { holes: holeList, centerIndex: run2CenterIndex } = generateHoleNumberList(newHoleLocation, approximateWeightResult.combination.length);
-    let combinationTable = '<table class="table table-bordered mt-2"><thead><tr><th>Hole</th><th>Weight(g)</th><th>Type</th></tr></thead><tbody>';
-    approximateWeightResult.combination.forEach((w, i) => {
+    let combinationTable = 
+        '<table class="table table-success table-striped-colums mt-2"><thead><tr><th>Hole</th><th>Weight(g)</th><th>Type</th></tr></thead><tbody>';
+    
+        approximateWeightResult.combination.forEach((w, i) => {
         const labelIndex = AVAILABLE_WEIGHTS.findIndex(v => v === w);
         const label = labelIndex !== -1 ? WEIGHT_LABELS[labelIndex] : '-';
         // 중심 홀 번호 셀에 bg-info 및 fw-bold 클래스 추가
@@ -313,29 +305,22 @@ function calculateRun2() {
     const output = `    
         <div class="card">
             <div class="card-body">
-                <h4 class="card-title text-primary-emphasis fw-bold">Run 2 계산 결과</h4>
-                <ul class="list-group list-group-flush fs-6">
-                    <li class="list-group-item">
-                        <strong>Target Weight (W2) :
-                        </strong> ${calculated_w2.toFixed(2)} grams</li>
-                    <li class="list-group-item">
-                        <strong>Total Weight :
-                        </strong> ${approximateWeightResult.totalWeight.toFixed(2)} grams</li>
-                    <li class="list-group-item">
-                        <strong>Deviation :
-                        </strong> ${(approximateWeightResult.totalWeight - calculated_w2).toFixed(2)} grams</strong> || <br>
-                        <strong>Total Weight Count :
-                        </strong> ${approximateWeightResult.combination.length}</li>                    
-                    <li class="list-group-item text-primary fw-bold">
-                        Hole Number : ${initialHole} --> ${newHoleLocation}</li>
-                    <h6 class="mt-3 text-danger">
-                        <strong>Weight Hole_Number Position :</strong></h6>
-                    <h6>${combinationTable}</h6>
+                <h5 class="card-title text-primary-emphasis fw-bold">Run 2 계산 결과</h5>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Target Weight (W2) : ${calculated_w2.toFixed(2)} grams</li>
+                    <li class="list-group-item">Total Weight : 
+                        ${approximateWeightResult.totalWeight.toFixed(2)} grams
+                    </li>
+                    <li class="list-group-item">Deviation : 
+                        ${(approximateWeightResult.totalWeight - calculated_w2).toFixed(2)} grams
+                    </li>                    
+                    <li class="list-group-item text-danger fw-bold">Hole Number : ${initialHole} --> ${newHoleLocation}</li>
+                    <li class="list-group-item list-unstyled">${combinationTable}</li>
+                    <li class="list-group-item pb-0">Total Weight Count : ${approximateWeightResult.combination.length}</li>
                 </ul>                
             </div>
         </div>
     `;
-
     document.getElementById('modalResultContent').innerHTML = output;
     const resultModal = new bootstrap.Modal(document.getElementById('resultModal'));
     resultModal.show();
