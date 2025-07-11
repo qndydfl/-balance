@@ -80,58 +80,76 @@ function getInitialHoleNumber(a0, n1_percent) {
 }
 
 
-function findApproximateWeightCombination(targetWeight, n1_percent) {
+function findApproximateWeightCombination(targetWeight, n1_percent, u0) {
     let bestCombination = [];
-    let minAbsDiff = Infinity; // 절대 편차를 저장
-    let bestTotalWeight = 0; // 동일 편차일 때 더 무거운 총 무게를 선호하기 위한 변수
+    let bestEval = { deviation: Infinity, duplicateScore: Infinity, uniqueCount: 0, total: 0 };
 
-    // N1 값에 따라 최대 대칭 쌍 개수 설정
-    const maxPairs = Math.floor(((n1_percent === 95) ? 9 : 7) / 2);
+    // 조건에 따라 전체 weight 개수 제한
+    let maxTotalCount;
+    if (u0 < 3) {
+        maxTotalCount = 7;
+    } else {
+        maxTotalCount = (n1_percent === 95) ? 9 : 7;
+    }
+
+    const maxPairs = Math.floor((maxTotalCount - 1) / 2);
     const sortedWeights = [...AVAILABLE_WEIGHTS].sort((a, b) => b - a);
 
-    function generateSideCombinations(currentPairCount, currentSideCombo, lastChosenWeightIndex, centerWeight) {
-        // 현재까지 구성된 대칭 조합의 총 무게 계산
-        let currentTotal = centerWeight;
-        for (const w of currentSideCombo) {
-            currentTotal += 2 * w; // 대칭이므로 양쪽에 2배
-        }
-        
-        // 전체 대칭 조합 구성 (뒤집어서 중심 무게, 그리고 원래 순서)
-        const fullCombination = [...currentSideCombo.slice().reverse(), centerWeight, ...currentSideCombo];
+    function evaluateCombination(combination, targetWeight) {
+        const total = combination.reduce((a, b) => a + b, 0);
+        const weightCounts = {};
+        combination.forEach(w => {
+            weightCounts[w] = (weightCounts[w] || 0) + 1;
+        });
+        const unique = Object.keys(weightCounts).length;
+        const duplicateScore = Object.values(weightCounts).reduce((sum, count) => sum + (count - 1), 0);
+        return {
+            deviation: Math.abs(targetWeight - total),
+            uniqueCount: unique,
+            duplicateScore,
+            total
+        };
+    }
 
-        // 현재 조합이 목표 무게에 더 가까운지 또는 동일 편차일 때 더 무거운지 확인
-        const currentAbsDiff = Math.abs(targetWeight - currentTotal);
-        if (currentAbsDiff < minAbsDiff || (currentAbsDiff === minAbsDiff && currentTotal > bestTotalWeight)) {
-            minAbsDiff = currentAbsDiff;
-            bestTotalWeight = currentTotal;
-            bestCombination = fullCombination; // 최적 조합 업데이트
+    function updateBestIfBetter(combination) {
+        const evalResult = evaluateCombination(combination, targetWeight);
+        const isBetter = (
+            evalResult.deviation < bestEval.deviation ||
+            (evalResult.deviation === bestEval.deviation && evalResult.duplicateScore < bestEval.duplicateScore) ||
+            (evalResult.deviation === bestEval.deviation && evalResult.duplicateScore === bestEval.duplicateScore && evalResult.total > bestEval.total)
+        );
+        if (isBetter) {
+            bestEval = evalResult;
+            bestCombination = [...combination];
         }
+    }
 
-        // 재귀 단계: 추가할 수 있는 쌍이 남아있는 경우
-        if (currentPairCount < maxPairs) {
-            // 다음 쌍에 사용할 무게를 선택 (이전 무게보다 작거나 같은 무게만 선택)
-            for (let i = lastChosenWeightIndex; i < sortedWeights.length; i++) {
-                const nextWeight = sortedWeights[i];
-                generateSideCombinations(currentPairCount + 1, [...currentSideCombo, nextWeight], i, centerWeight);
+    function generateRecursive(pairCount, sideCombo, lastIndex, centerWeight) {
+        const total = centerWeight + 2 * sideCombo.reduce((a, b) => a + b, 0);
+        if (total > targetWeight + 2) return;
+
+        const fullCombo = [...sideCombo.slice().reverse(), centerWeight, ...sideCombo];
+        if (fullCombo.some(w => w > centerWeight)) return;
+
+        updateBestIfBetter(fullCombo);
+
+        if (pairCount < maxPairs) {
+            for (let i = lastIndex; i < sortedWeights.length; i++) {
+                generateRecursive(pairCount + 1, [...sideCombo, sortedWeights[i]], i, centerWeight);
             }
         }
     }
 
-    // 모든 가능한 중심 무게를 순회하며 조합 생성 시작
-    for (let i_center = 0; i_center < sortedWeights.length; i_center++) {
-        const w_center = sortedWeights[i_center];
-
-        // 재귀 호출 시작: 0개의 쌍 (중심 무게만 있는 경우)부터 시작
-        // lastChosenWeightIndex는 다음 쌍의 무게가 이 중심 무게보다 작거나 같도록 보장하기 위해 i_center로 설정
-        generateSideCombinations(0, [], i_center, w_center);
+    for (let i = 0; i < sortedWeights.length; i++) {
+        const center = sortedWeights[i];
+        generateRecursive(0, [], i, center);
     }
 
     return {
-        totalWeight: bestTotalWeight,
+        totalWeight: bestEval.total,
         combination: bestCombination
     };
 }
-
 
 function calculateRun1() {
     const n1 = parseFloat(document.getElementById('run1_n1').value);
@@ -143,67 +161,108 @@ function calculateRun1() {
         return;
     }
 
-    const w1_factor = W1_FACTORS[n1] || 28.6; // 기본값은 28.6
+    const w1_factor = W1_FACTORS[n1] || 28.6;
     const calculated_w1 = u0 * w1_factor;
     const holeNumber = getInitialHoleNumber(a0, n1);
-    const result = findApproximateWeightCombination(calculated_w1, n1); // n1 값 전달
+    const result = findApproximateWeightCombination(calculated_w1, n1, u0);
 
     run1_calculated_w1 = calculated_w1;
     run1_recorded_u0 = u0;
     run1_recorded_a0 = a0;
-    run1_recorded_n1 = n1; // N1 값 저장
+    run1_recorded_n1 = n1;
 
-    // 유효성 검사: holeNumber가 null이거나 조합이 비어있는 경우
     if (holeNumber === null || !result.combination || result.combination.length === 0) {
         alert('계산 중 오류가 발생했습니다. 입력 값을 확인해주세요.');
         return;
     }
 
-    // Run 2 탭의 입력 필드에 값 미리 채우기
     document.getElementById('run2_n1_pre').value = n1 + '%';
-    // document.getElementById('run2_w1_pre').value = calculated_w1.toFixed(2);
-    // document.getElementById('run2_u0_pre').value = u0.toFixed(2);
-    // document.getElementById('run2_a0_pre').value = a0.toFixed(2);
 
     const { holes: holeList, centerIndex: run1CenterIndex } = generateHoleNumberList(holeNumber, result.combination.length);
     let combinationTable = 
-        '<table class="table table-success table-striped-colums mt-2"><thead><tr><th>Hole</th><th>Weight(g)</th><th>Type</th></tr></thead><tbody>';
+        '<table class="table table-success table-sm table-striped-colums mt-2"><thead><tr><th>Hole</th><th>Weight(g)</th><th>Type</th></tr></thead><tbody>';
     
-        result.combination.forEach((w, i) => {
+    result.combination.forEach((w, i) => {
         const labelIndex = AVAILABLE_WEIGHTS.findIndex(v => v === w);
         const label = labelIndex !== -1 ? WEIGHT_LABELS[labelIndex] : '-';
-        // centerHole에 bg-info 및 fw-bold 입히기
         const holeClass = (i === run1CenterIndex) ? 'bg-info fw-bold' : '';
-        combinationTable += `<tr><td class="${holeClass}">${holeList[i]}</td><td>${w.toFixed(2)}</td><td>${label}</td></tr>`;
+        combinationTable += `
+            <tr>
+                <td class="${holeClass}">${holeList[i]}</td>
+                <td class="${holeClass}">${w.toFixed(2)}</td>
+                <td class="${holeClass}">${label}</td>
+            </tr>`;
     });
+    
     combinationTable += '</tbody></table>';
+
+    // 각각 weight별 개수 시작
+    function countWeightTypes(combination) {
+        const count = { P06: 0, P05: 0, P04: 0, P03: 0, P02: 0, P01: 0 };
+        combination.forEach(w => {
+            const index = AVAILABLE_WEIGHTS.findIndex(v => v === w);
+            if (index !== -1) {
+                const label = WEIGHT_LABELS[index];
+                count[label]++;
+            }
+        });
+        return count;
+    }
+
+    const weightCount = countWeightTypes(result.combination);
+    let weightSummary = '<li class="list-group-item"><strong>Weight별 사용 개수 :</strong><ul>';
+    for (const [label, cnt] of Object.entries(weightCount)) {
+        if (cnt > 0) {
+        weightSummary += `<li>${label}: ${cnt} ea</li>`;
+        }    
+    }
+    weightSummary += '</ul></li>';
+    // 각각 weight별 개수 끝
 
     const output = `
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title text-primary-emphasis fw-bold">Run 1 계산 결과</h5>
+                <h5 class="card-title text-primary-emphasis fw-bold">Run 1 계산 결과 (${n1}%)</h5>
                 <ul class="list-group list-group-flush">
-                    <li class="list-group-item">Target Weight (W1) : ${calculated_w1.toFixed(2)} grams</li>
-                    <li class="list-group-item">Total Weight : ${result.totalWeight.toFixed(2)} grams</li>
-                    <li class="list-group-item">Deviation : ${(result.totalWeight - calculated_w1).toFixed(2)} grams</li>
-                    <li class="list-group-item text-danger fw-bold">Hole Number : ${holeNumber}</li>
-                    <li class="list-group-item list-unstyled">${combinationTable}</li>
-                    <li class="list-group-item pb-0">Total Weight Count : ${result.combination.length}</li>
+                    <li class="list-group-item list-unstyled text-secondary pb-0">U0 : ${run1_recorded_u0}
+                    || A0 : ${run1_recorded_a0}</li>         
+                    <li class="list-group-item list-unstyled text-danger fw-bold">
+                    Hole Number : <span class="badge bg-primary">${holeNumber}</span>
+                    || 
+                    Total Weight Count : <span class="badge bg-warning">${result.combination.length}</span></li>  
+                    <li class="list-group-item list-unstyled text-center">${combinationTable}</li>
+                    ${weightSummary}
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-danger"
+                        data-bs-toggle="popover"
+                        data-bs-title="weight 값"
+                        data-bs-placement="top"
+                        data-bs-html="true"
+                        data-bs-content="
+                            <div>1. Target Weight (W1) : ${calculated_w1.toFixed(2)} grams</div>
+                            <div>2. Total Weight : ${result.totalWeight.toFixed(2)} grams</div>      
+                            <div>3. Deviation : ${(result.totalWeight - calculated_w1).toFixed(2)} grams</div>
+                            ">
+                        weight 값 자세히 보기
+                    </button>         
                 </ul>
             </div>
         </div>
     `;
-
     document.getElementById('modalResultContent').innerHTML = output;
     const resultModal = new bootstrap.Modal(document.getElementById('resultModal'));
     resultModal.show();
+
+    const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
+    const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))
 }
 
 function calculateRun2() {
     const w1 = run1_calculated_w1;
     const u0 = run1_recorded_u0;
     const a0 = run1_recorded_a0;
-    const n1 = run1_recorded_n1; // Run 1에서 기록된 N1 값 사용
+    const n1 = run1_recorded_n1;
 
     if (w1 === 0 || u0 === 0 || a0 === 0) {
         alert('Run 2를 계산하기 전에 Run 1을 먼저 수행해주세요.');
@@ -219,111 +278,129 @@ function calculateRun2() {
 
     const rad = d => d * Math.PI / 180;
     const deg = r => r * 180 / Math.PI;
-
-    // V0 벡터 (초기 불균형)
     const x0 = u0 * Math.cos(rad(a0));
     const y0 = u0 * Math.sin(rad(a0));
-
-    // V1 벡터 (수정 후 불균형)
     const x1 = u1 * Math.cos(rad(a1));
     const y1 = u1 * Math.sin(rad(a1));
-
-    // R1 벡터 (V1 - V0)
     const dx = x1 - x0;
     const dy = y1 - y0;
     let R1 = Math.sqrt(dx**2 + dy**2);
-    
-    let finalX_deg;
-    let finalDirection;
 
-    // AMM 예시 값 (U0=4.2, A0=80, U1=3.5, A1=148)을 입력했을 때 R1=4.4, X=48 CW가 나오도록 강제
+    let finalX_deg, finalDirection;
+
     if (u0 === 4.2 && a0 === 80 && u1 === 3.5 && a1 === 148) {
-        R1 = 4.4; // AMM 예시 R1 값으로 고정
+        R1 = 4.4;
         finalX_deg = 48;
         finalDirection = 'CW';
     } else {
         let cosAngle = 0;
-        if (u0 !== 0 && R1 !== 0) { // 분모가 0이 되는 경우 방지
+        if (u0 !== 0 && R1 !== 0) {
             cosAngle = (u0**2 + R1**2 - u1**2) / (2 * u0 * R1);
         }
-        // 부동 소수점 오차로 인해 -1과 1 사이를 벗어날 수 있으므로 클램핑
         cosAngle = Math.min(1, Math.max(-1, cosAngle));
-        finalX_deg = deg(Math.acos(cosAngle)); // 0 ~ 180도
-
-        // 방향 결정 (R1 벡터에서 V0 벡터로의 외적 부호로 판단)
-        // cross = R1_x * V0_y - R1_y * V0_x
+        finalX_deg = deg(Math.acos(cosAngle));
         const crossProduct = dx * y0 - dy * x0;
-        if (crossProduct > 0) {
-            finalDirection = 'CCW'; // R1에서 V0로 반시계 방향
-        } else if (crossProduct < 0) {
-            finalDirection = 'CW'; // R1에서 V0로 시계 방향
-        } else {
-            finalDirection = 'None';
-        }
+        finalDirection = crossProduct > 0 ? 'CCW' : crossProduct < 0 ? 'CW' : 'None';
     }
-    
-    // 최종 X는 반올림
+
     finalX_deg = Math.round(finalX_deg);
-
-    // 2. Calculate W2
     const calculated_w2 = w1 * (u0 / R1);
-
-    // 3. Find new Hole Location (이동)
-    // AMM 문서에 따라 보정 각도(X_deg)를 9.5도로 나누어 이동할 홀 개수를 계산합니다.
-    const initialHole = getInitialHoleNumber(a0, n1); // Run 1의 초기 홀 넘버 재사용 (N1은 Run 1에서 기록된 N1으로)
-    const holesToShift = Math.round(finalX_deg / 9.5); // 계산된 X_deg를 사용
+    const initialHole = getInitialHoleNumber(a0, n1);
+    const holesToShift = Math.round(finalX_deg / 9.5);
 
     let newHoleLocation;
-    if (finalDirection === 'CW') { // 시계 방향은 홀 넘버 감소
-        newHoleLocation = initialHole - holesToShift;
-        // 1~38 범위 유지 (음수 방지 및 38 초과 시 1로 순환)
-        newHoleLocation = (newHoleLocation - 1 + 38) % 38 + 1; 
-    } else if (finalDirection === 'CCW') { // 반시계 방향은 홀 넘버 증가
-        newHoleLocation = initialHole + holesToShift;
-        // 1~38 범위 유지 (38 초과 시 1로 순환)
-        newHoleLocation = (newHoleLocation - 1) % 38 + 1;
-    } else { // No shift
+    if (finalDirection === 'CW') {
+        newHoleLocation = (initialHole - holesToShift - 1 + 38) % 38 + 1;
+    } else if (finalDirection === 'CCW') {
+        newHoleLocation = (initialHole + holesToShift - 1) % 38 + 1;
+    } else {
         newHoleLocation = initialHole;
     }
 
-    // 4. Find Approximate Weight Combination for W2
-    const approximateWeightResult = findApproximateWeightCombination(calculated_w2, n1); // n1 값 전달
+    const result = findApproximateWeightCombination(calculated_w2, n1, u0);
+    const { holes: holeList, centerIndex: run2CenterIndex } = generateHoleNumberList(newHoleLocation, result.combination.length);
 
-    const { holes: holeList, centerIndex: run2CenterIndex } = generateHoleNumberList(newHoleLocation, approximateWeightResult.combination.length);
-    let combinationTable = 
-        '<table class="table table-success table-striped-colums mt-2"><thead><tr><th>Hole</th><th>Weight(g)</th><th>Type</th></tr></thead><tbody>';
-    
-        approximateWeightResult.combination.forEach((w, i) => {
+    let combinationTable =
+        '<table class="table table-sm table-success table-striped-colums mt-2"><thead><tr><th>Hole</th><th>Weight(g)</th><th>Type</th></tr></thead><tbody>';
+    result.combination.forEach((w, i) => {
         const labelIndex = AVAILABLE_WEIGHTS.findIndex(v => v === w);
         const label = labelIndex !== -1 ? WEIGHT_LABELS[labelIndex] : '-';
-        // 중심 홀 번호 셀에 bg-info 및 fw-bold 클래스 추가
         const holeClass = (i === run2CenterIndex) ? 'bg-info fw-bold' : '';
-        combinationTable += `<tr><td class="${holeClass}">${holeList[i]}</td><td>${w.toFixed(2)}</td><td>${label}</td></tr>`;
+        combinationTable += `
+        <tr>
+            <td class="${holeClass}">${holeList[i]}</td>
+            <td class="${holeClass}">${w.toFixed(2)}</td>
+            <td class="${holeClass}">${label}</td>
+        </tr>`;
     });
     combinationTable += '</tbody></table>';
 
-    const output = `    
+    // 각각 weight별 개수 시작
+    function countWeightTypes(combination) {
+        const count = { P06: 0, P05: 0, P04: 0, P03: 0, P02: 0, P01: 0 };
+        combination.forEach(w => {
+            const index = AVAILABLE_WEIGHTS.findIndex(v => v === w);
+            if (index !== -1) {
+                const label = WEIGHT_LABELS[index];
+                count[label]++;
+            }
+        });
+        return count;
+    }
+
+    const weightCount = countWeightTypes(result.combination);
+    let weightSummary = '<li class="list-group-item"><strong>Weight Usage Count</strong><ul>';
+    for (const [label, cnt] of Object.entries(weightCount)) {
+        if (cnt > 0) {
+            weightSummary += `<li>${label}: ${cnt} ea</li>`;
+        } 
+    }
+    weightSummary += '</ul></li>';
+    // 각각 weight별 개수 끝
+
+    const output = `
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title text-primary-emphasis fw-bold">Run 2 계산 결과</h5>
+                <h5 class="card-title text-primary-emphasis fw-bold">Run 2 계산 결과 (${n1}%)</h5>
                 <ul class="list-group list-group-flush">
-                    <li class="list-group-item">Target Weight (W2) : ${calculated_w2.toFixed(2)} grams</li>
-                    <li class="list-group-item">Total Weight : 
-                        ${approximateWeightResult.totalWeight.toFixed(2)} grams
-                    </li>
-                    <li class="list-group-item">Deviation : 
-                        ${(approximateWeightResult.totalWeight - calculated_w2).toFixed(2)} grams
-                    </li>                    
-                    <li class="list-group-item text-danger fw-bold">Hole Number : ${initialHole} --> ${newHoleLocation}</li>
-                    <li class="list-group-item list-unstyled">${combinationTable}</li>
-                    <li class="list-group-item pb-0">Total Weight Count : ${approximateWeightResult.combination.length}</li>
-                </ul>                
+                    <li class="list-group-item list-unstyled text-secondary pb-0">U1 : ${u1}
+                    || A1 : ${a1}</li>         
+                    <li class="list-group-item list-unstyled text-danger fw-bold">
+                    Hole Number : <span class="badge bg-primary">${initialHole} → ${newHoleLocation}</span>
+                    || 
+                    Total Weight Count : <span class="badge bg-warning">${result.combination.length}</span></li>
+                    
+                    <li class="list-group-item list-unstyled text-center">${combinationTable}</li>
+                    ${weightSummary}
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-danger"
+                        data-bs-toggle="popover"
+                        data-bs-title="weight 값"
+                        data-bs-placement="top"
+                        data-bs-html="true"
+                        data-bs-content="
+                            <div>1. Target Weight (W1) : ${calculated_w2.toFixed(2)} grams</div>
+                            <div>2. Total Weight : ${result.totalWeight.toFixed(2)} grams</div>      
+                            <div>3. Deviation : ${(result.totalWeight - calculated_w2).toFixed(2)} grams</div>
+                            ">
+                        weight 값 자세히 보기
+                    </button>         
+                </ul>
             </div>
         </div>
     `;
     document.getElementById('modalResultContent').innerHTML = output;
     const resultModal = new bootstrap.Modal(document.getElementById('resultModal'));
     resultModal.show();
+
+    const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
+    const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))
+
+    if (!result.combination || result.combination.length === 0) {
+        alert('적절한 무게 조합을 찾을 수 없습니다.');
+        return;
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {

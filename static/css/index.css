@@ -12,6 +12,12 @@ h1 {
     font-style: normal;
 }
 
+.card-body, .modal {
+    font-family: "Sunflower", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+}
+
 .container {
     max-width: 900px;
 }
