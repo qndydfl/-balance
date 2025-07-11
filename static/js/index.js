@@ -225,11 +225,10 @@ function calculateRun1() {
                 <h5 class="card-title text-primary-emphasis fw-bold">Run 1 계산 결과 (${n1}%)</h5>
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item list-unstyled text-secondary pb-0">U0 : ${run1_recorded_u0}
-                    || A0 : ${run1_recorded_a0}</li>         
+                        || A0 : ${run1_recorded_a0}</li>         
                     <li class="list-group-item list-unstyled text-danger fw-bold">
-                    Hole Number : <span class="badge bg-primary">${holeNumber}</span>
-                    || 
-                    Total Weight Count : <span class="badge bg-warning">${result.combination.length}</span></li>  
+                        Hole Number : <span class="badge bg-primary">${holeNumber}</span><br>
+                        Total Weight Count : <span class="badge bg-secondary">${result.combination.length}</span></li>  
                     <li class="list-group-item list-unstyled text-center">${combinationTable}</li>
                     ${weightSummary}
                     <button
@@ -363,13 +362,10 @@ function calculateRun2() {
             <div class="card-body">
                 <h5 class="card-title text-primary-emphasis fw-bold">Run 2 계산 결과 (${n1}%)</h5>
                 <ul class="list-group list-group-flush">
-                    <li class="list-group-item list-unstyled text-secondary pb-0">U1 : ${u1}
-                    || A1 : ${a1}</li>         
+                    <li class="list-group-item list-unstyled text-secondary pb-0">U1 : ${u1} || A1 : ${a1}</li>         
                     <li class="list-group-item list-unstyled text-danger fw-bold">
-                    Hole Number : <span class="badge bg-primary">${initialHole} → ${newHoleLocation}</span>
-                    || 
-                    Total Weight Count : <span class="badge bg-warning">${result.combination.length}</span></li>
-                    
+                        Hole Number : <span class="badge bg-primary">${initialHole} → ${newHoleLocation}</span><br>
+                        Total Weight Count : <span class="badge bg-secondary">${result.combination.length}</span></li>
                     <li class="list-group-item list-unstyled text-center">${combinationTable}</li>
                     ${weightSummary}
                     <button

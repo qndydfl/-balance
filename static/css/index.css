@@ -1,7 +1,8 @@
-body {
-    background-color: #f8f9fa;
-    font-family: "Noto Sans KR", sans-serif;
-    font-optical-sizing: auto;
+body, 
+.card-body, 
+.modal {
+    background-color: #f8f9fa;    
+    font-family: "Sunflower", sans-serif;
     font-weight: 400;
     font-style: normal;
 }
@@ -12,14 +13,8 @@ h1 {
     font-style: normal;
 }
 
-.card-body, .modal {
-    font-family: "Sunflower", sans-serif;
-    font-weight: 300;
-    font-style: normal;
-}
-
 .container {
-    max-width: 900px;
+    max-width: 700px;
 }
 
 .tab-pane {
