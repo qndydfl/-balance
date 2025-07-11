@@ -82,9 +82,15 @@ function getInitialHoleNumber(a0, n1_percent) {
 
 function findApproximateWeightCombination(targetWeight, n1_percent, u0) {
     let bestCombination = [];
-    let bestEval = { deviation: Infinity, duplicateScore: Infinity, uniqueCount: 0, total: 0 };
+    let bestEval = {
+        deviation: Infinity,
+        totalCount: Infinity,
+        duplicateScore: Infinity,
+        p01Count: Infinity,
+        total: 0
+    };
 
-    // 조건에 따라 전체 weight 개수 제한
+    // 조합 길이 제한
     let maxTotalCount;
     if (u0 < 3) {
         maxTotalCount = 7;
@@ -95,29 +101,34 @@ function findApproximateWeightCombination(targetWeight, n1_percent, u0) {
     const maxPairs = Math.floor((maxTotalCount - 1) / 2);
     const sortedWeights = [...AVAILABLE_WEIGHTS].sort((a, b) => b - a);
 
-    function evaluateCombination(combination, targetWeight) {
+    function evaluateCombination(combination) {
         const total = combination.reduce((a, b) => a + b, 0);
         const weightCounts = {};
         combination.forEach(w => {
             weightCounts[w] = (weightCounts[w] || 0) + 1;
         });
-        const unique = Object.keys(weightCounts).length;
+
         const duplicateScore = Object.values(weightCounts).reduce((sum, count) => sum + (count - 1), 0);
-        return {
-            deviation: Math.abs(targetWeight - total),
-            uniqueCount: unique,
-            duplicateScore,
-            total
-        };
+        const totalCount = combination.length;
+        const p01Count = weightCounts[3.14] || 0;
+        const deviation = Math.abs(targetWeight - total);
+
+        return { deviation, totalCount, duplicateScore, p01Count, total };
     }
 
     function updateBestIfBetter(combination) {
-        const evalResult = evaluateCombination(combination, targetWeight);
-        const isBetter = (
+        const evalResult = evaluateCombination(combination);
+
+        // 조건 충족 여부 확인
+        if (evalResult.deviation > ALLOWED_DEVIATION) return;
+        if (evalResult.p01Count > 2) return;
+
+        // 우선순위 비교
+        const isBetter =
             evalResult.deviation < bestEval.deviation ||
-            (evalResult.deviation === bestEval.deviation && evalResult.duplicateScore < bestEval.duplicateScore) ||
-            (evalResult.deviation === bestEval.deviation && evalResult.duplicateScore === bestEval.duplicateScore && evalResult.total > bestEval.total)
-        );
+            (evalResult.deviation === bestEval.deviation && evalResult.totalCount < bestEval.totalCount) ||
+            (evalResult.deviation === bestEval.deviation && evalResult.totalCount === bestEval.totalCount && evalResult.duplicateScore < bestEval.duplicateScore);
+
         if (isBetter) {
             bestEval = evalResult;
             bestCombination = [...combination];
@@ -125,8 +136,9 @@ function findApproximateWeightCombination(targetWeight, n1_percent, u0) {
     }
 
     function generateRecursive(pairCount, sideCombo, lastIndex, centerWeight) {
-        const total = centerWeight + 2 * sideCombo.reduce((a, b) => a + b, 0);
-        if (total > targetWeight + 2) return;
+        const sideTotal = sideCombo.reduce((a, b) => a + b, 0);
+        const total = centerWeight + 2 * sideTotal;
+        if (total > targetWeight + ALLOWED_DEVIATION) return;
 
         const fullCombo = [...sideCombo.slice().reverse(), centerWeight, ...sideCombo];
         if (fullCombo.some(w => w > centerWeight)) return;
